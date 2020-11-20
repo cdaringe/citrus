@@ -1,0 +1,8 @@
+.nyc_output
+coverage
+node_modules
+*.log
+build
+.DS_Store
+.citrus
+.env
