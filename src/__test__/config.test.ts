@@ -1,3 +1,5 @@
+import { getConfig } from "../config";
+
 const KNOWN_GOOD_ENV = {
   DB_PORT: "1234",
   DB_HOST: "test_DB_HOST",
@@ -11,23 +13,33 @@ const KNOWN_GOOD_ENV = {
 };
 
 describe("config", () => {
-  // :|
-  // https://stackoverflow.com/a/48042799/1438908
-  const OLD_ENV = process.env;
-  beforeEach(() => {
-    jest.resetModules();
-    // :|
-    process.env = { ...OLD_ENV, ...KNOWN_GOOD_ENV };
+  /**
+   * @refactor
+   * - test positive case
+   */
+  it(`should accept valid env`, () => {
+    expect(() => getConfig(KNOWN_GOOD_ENV)).not.toThrowError();
   });
 
-  afterAll(() => {
-    // :|
-    process.env = OLD_ENV;
-  });
+  // @refactor - drop vm patching malarkey
+  // // :|
+  // // https://stackoverflow.com/a/48042799/1438908
+  // const OLD_ENV = process.env;
+  // beforeEach(() => {
+  //   jest.resetModules();
+  //   // :|
+  //   process.env = { ...OLD_ENV, ...KNOWN_GOOD_ENV };
+  // });
 
-  it("should not error on import", () => {
-    expect(() => require("../config")).not.toThrow();
-  });
+  // afterAll(() => {
+  //   // :|
+  //   process.env = OLD_ENV;
+  // });
+
+  // @refactor - test provides little value now, pruned
+  // it("should not error on import", () => {
+  //   expect(() => require("../config")).not.toThrow();
+  // });
   [
     {
       case: "bad db pw",
@@ -35,20 +47,22 @@ describe("config", () => {
         POSTGRES_PASSWORD: "",
         DB_PASSWORD: "",
       },
-      errorMatch: /env.example/,
     },
     {
       case: "bad port",
       envPatch: {
         PORT: "100",
       },
-      errorMatch: /constraint check/,
     },
   ].map((opts) =>
     it(`should error on ${opts.case}`, () => {
-      // :|
-      process.env = { ...process.env, ...opts.envPatch };
-      expect(() => require("../config")).toThrowError(opts.errorMatch);
+      /**
+       * @refactor
+       * - no more env mutations
+       * - inputs passed as function inputs
+       */
+      const env = { ...KNOWN_GOOD_ENV, ...opts.envPatch };
+      expect(() => getConfig(env)).toThrowError(/constraint check/);
     })
   );
 });

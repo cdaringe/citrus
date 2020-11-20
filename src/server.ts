@@ -1,15 +1,22 @@
 import Koa from "koa";
 import { createServer } from "http";
-import { serverPort, serverHostname } from "./config";
+import { getConfig, loadDotEnv } from "./config";
 import { postgraphile } from "postgraphile";
 import { pool } from "./db";
 import { promisify } from "util";
+
+/**
+ * @refactor
+ * - not GT compliant. future refactor
+ */
+loadDotEnv();
+const { serverHostname, serverPort } = getConfig(process.env);
 
 const app = new Koa();
 export const server = createServer(app.callback());
 
 app.use((async (ctx, next) => {
-  const [_, id] = ctx.path.match(/hello\/(\d+)/i) || [];
+  const [_, id] = ctx.path.match(/fruits\/(\d+)/i) || [];
   if (id)
     ctx.body = await pool
       .query({

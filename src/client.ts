@@ -1,8 +1,9 @@
 import fetch from "node-fetch";
-import { serverPort } from "./config";
+// import { serverPort } from "./config";
+const serverPort = 7777; // @refactor - future refactor
 
 const GQL_GET_FRUITS = `{
-	allFruits {
+  allFruits {
     edges {
       node {
         name
@@ -21,4 +22,4 @@ export const getFruits = () =>
   });
 
 export const getFruitById = (id: number) =>
-  fetch(`http://localhost:${serverPort}/hello/${id}`);
+  fetch(`http://localhost:${serverPort}/fruits/${id}`);
