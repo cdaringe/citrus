@@ -5,14 +5,10 @@ jest.mock("postgraphile", () => {
 // :|
 let dbReturnValue: any = null;
 // :|
-jest.mock("../db", () => {
-  return {
-    pool: {
-      query: async () => {
-        return dbReturnValue;
-      },
-    },
-  };
+jest.mock("pg", () => {
+  function Pool() {}
+  Pool.prototype.query = () => Promise.resolve(dbReturnValue);
+  return { Pool };
 });
 
 import { getFruitById } from "../client";

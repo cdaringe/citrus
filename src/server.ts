@@ -2,7 +2,7 @@ import Koa from "koa";
 import { createServer } from "http";
 import { getConfig, loadDotEnv } from "./config";
 import { postgraphile } from "postgraphile";
-import { pool } from "./db";
+import { Pool } from "pg";
 import { promisify } from "util";
 
 /**
@@ -10,11 +10,23 @@ import { promisify } from "util";
  * - not GT compliant. future refactor
  */
 loadDotEnv();
-const { serverHostname, serverPort } = getConfig(process.env);
+const {
+  serverHostname,
+  serverPort,
+  dbHost,
+  dbPassword,
+  dbPort,
+  dbUser,
+} = getConfig(process.env);
 
 const app = new Koa();
 export const server = createServer(app.callback());
-
+const pool = new Pool({
+  host: dbHost,
+  password: dbPassword,
+  port: dbPort,
+  user: dbUser,
+});
 app.use((async (ctx, next) => {
   const [_, id] = ctx.path.match(/fruits\/(\d+)/i) || [];
   if (id)
