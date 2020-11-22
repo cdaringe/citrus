@@ -2,21 +2,10 @@ import * as runtypes from "runtypes";
 import * as dotenv from "dotenv-safe";
 import { resolve } from "path";
 
-/**
- * @refactored
- * No effects on load
- */
 export const loadDotEnv = () =>
   dotenv.config({
     path: resolve(__dirname, "..", ".env"),
   });
-
-/**
- * @refactored
- * - No effects on load
- * - env as input
- * - runtypes as optional input
- */
 
 export const getConfig = (
   env: typeof process.env,
@@ -60,3 +49,5 @@ export const getConfig = (
     ),
   };
 };
+
+export type Config = ReturnType<typeof getConfig>;

@@ -1,33 +1,24 @@
 import Koa from "koa";
-import { createServer } from "http";
-import { getConfig, loadDotEnv } from "./config";
+import http, { Server } from "http";
+import type { Config } from "./config";
 import { postgraphile } from "postgraphile";
-import { Pool } from "pg";
-import { promisify } from "util";
+import type { Pool } from "pg";
 
-/**
- * @refactor
- * - not GT compliant. future refactor
- */
-loadDotEnv();
-const {
-  serverHostname,
-  serverPort,
-  dbHost,
-  dbPassword,
-  dbPort,
-  dbUser,
-} = getConfig(process.env);
+type Http = typeof http;
+type GqlMiddleware = typeof postgraphile;
+type WithApp = { app: Koa };
+type WithPool = { pool: Pool };
+type WithGql = { gqlMiddleware: GqlMiddleware };
 
-const app = new Koa();
-export const server = createServer(app.callback());
-const pool = new Pool({
-  host: dbHost,
-  password: dbPassword,
-  port: dbPort,
-  user: dbUser,
-});
-app.use((async (ctx, next) => {
+export const createServer = (App: typeof Koa, { createServer }: Http) => {
+  const app = new App();
+  const server = createServer(app.callback());
+  return [app, server] as const;
+};
+
+export const createFruitMiddleware: (pool: Pool) => Koa.Middleware = (
+  pool
+) => async (ctx, next) => {
   const [_, id] = ctx.path.match(/fruits\/(\d+)/i) || [];
   if (id)
     ctx.body = await pool
@@ -37,15 +28,22 @@ app.use((async (ctx, next) => {
       })
       .then((r) => r.rows[0].name);
   return next();
-}) as Koa.Middleware);
-app.use(postgraphile(pool, ["public"], { graphiql: true }));
+};
 
-export const listen = () =>
-  promisify((port: number, hostname: string, cb: () => void) =>
-    server.listen(port, hostname, cb)
-  )(serverPort, serverHostname);
+export const createMiddlewares = ({
+  pool,
+  gqlMiddleware,
+}: WithPool & WithGql) => [
+  createFruitMiddleware(pool),
+  gqlMiddleware(pool, ["public"], { graphiql: true }),
+];
 
-if (!module.parent)
-  listen().then(() =>
-    console.log(`started on ${serverHostname}:${serverPort}`)
-  );
+export const bindMiddlewares = ({
+  app,
+  ...rest
+}: WithApp & WithPool & WithGql) => createMiddlewares(rest).forEach(app.use);
+
+export const listen = (
+  server: Server,
+  { serverPort, serverHostname }: Config
+) => new Promise((res) => server.listen(serverPort, serverHostname, res));
