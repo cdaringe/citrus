@@ -1,6 +1,11 @@
 import { getConfig, loadDotEnv } from "./config";
 import { Pool } from "pg";
-import { bindMiddlewares, createServer, listen } from "./server";
+import {
+  bindMiddlewares,
+  createServer,
+  listen,
+  createMiddlewares,
+} from "./server";
 import Koa from "koa";
 import http from "http";
 import postgraphile from "postgraphile";
@@ -24,7 +29,13 @@ async function start() {
     user: dbUser,
   });
   const [app, server] = createServer(Koa, http);
-  bindMiddlewares({ app, pool, gqlMiddleware: postgraphile });
+  bindMiddlewares({
+    app,
+    createMiddlewares,
+    pool,
+    gqlMiddleware: postgraphile,
+    bind: (mw) => app.use(mw),
+  });
 
   /* execute GT entry point */
   await listen(server, config);

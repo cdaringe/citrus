@@ -9,6 +9,7 @@ type GqlMiddleware = typeof postgraphile;
 type WithApp = { app: Koa };
 type WithPool = { pool: Pool };
 type WithGql = { gqlMiddleware: GqlMiddleware };
+type WithCreateMiddlewares = { createMiddlewares: typeof createMiddlewares };
 
 export const createServer = (App: typeof Koa, { createServer }: Http) => {
   const app = new App();
@@ -40,8 +41,15 @@ export const createMiddlewares = ({
 
 export const bindMiddlewares = ({
   app,
+  createMiddlewares,
+  bind,
   ...rest
-}: WithApp & WithPool & WithGql) => createMiddlewares(rest).forEach(app.use);
+}: WithApp &
+  WithPool &
+  WithGql &
+  WithCreateMiddlewares & {
+    bind: (mws: Koa.Middleware[]) => void;
+  }) => bind(createMiddlewares(rest));
 
 export const listen = (
   server: Server,
