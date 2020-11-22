@@ -4,13 +4,14 @@ import type { Config } from "./config";
 import { postgraphile } from "postgraphile";
 import type { Pool } from "pg";
 
-type Http = typeof http;
 type GqlMiddleware = typeof postgraphile;
+type Http = typeof http;
+type KoaConstructor = typeof Koa;
 type WithApp = { app: Koa };
-type WithPool = { pool: Pool };
 type WithGql = { gqlMiddleware: GqlMiddleware };
+type WithPool = { pool: Pool };
 
-export const createServer = (App: typeof Koa, { createServer }: Http) => {
+export const createServer = (App: KoaConstructor, { createServer }: Http) => {
   const app = new App();
   const server = createServer(app.callback());
   return [app, server] as const;

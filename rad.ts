@@ -14,5 +14,6 @@ export const tasks: Tasks = {
   ...dbTasks,
   ...{ startDevServer, sds: startDevServer },
   ...{ t: test, test, tw: `${test} --watch` },
+  clean: `fd -I js src --exec rm {}`,
   start,
 };

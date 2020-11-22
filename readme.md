@@ -1,10 +1,10 @@
 # citrus
 
-the best fruit app to explore GTLT concepts.
+the best fruit app to explore [GTLT](https://cdaringe.com/gtlt) concepts.
 
 ## usage
 
-- install rad
+- [install rad](https://github.com/cdaringe/rad#install)
 - `rad db`
 - `rad startDevServer` (`rad sds` for short)
 

@@ -13,15 +13,11 @@ const KNOWN_GOOD_ENV = {
 };
 
 describe("config", () => {
-  /**
-   * @refactor
-   * - test positive case
-   */
   it(`should accept valid env`, () => {
     expect(() => getConfig(KNOWN_GOOD_ENV)).not.toThrowError();
   });
 
-  // @refactor - drop vm patching malarkey
+  // @refactor - drop vm patching malarkey :)
   // // :|
   // // https://stackoverflow.com/a/48042799/1438908
   // const OLD_ENV = process.env;
@@ -59,7 +55,7 @@ describe("config", () => {
       /**
        * @refactor
        * - no more env mutations
-       * - inputs passed as function inputs
+       * - inputs passed as function inputs :)
        */
       const env = { ...KNOWN_GOOD_ENV, ...opts.envPatch };
       expect(() => getConfig(env)).toThrowError(/constraint check/);
